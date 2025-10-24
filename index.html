@@ -518,36 +518,17 @@
 
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const database = firebase.database();
         
         let currentFilter = 'all';
         let allWithdrawals = [];
         
-        // Login Admin
-        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            // Email admin: herickbetint@gmail.com
-            if (email === 'herickbetint@gmail.com') {
-                try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    showToast('✅ Login realizado com sucesso!', 'success');
-                    setTimeout(() => {
-                        document.getElementById('loginScreen').style.display = 'none';
-                        document.getElementById('adminPanel').style.display = 'block';
-                        loadWithdrawals();
-                        setupRealtimeListener();
-                    }, 1000);
-                } catch (error) {
-                    showToast('❌ Email ou senha incorretos!', 'error');
-                }
-            } else {
-                showToast('❌ Acesso negado! Apenas administradores.', 'error');
-            }
+        // Iniciar painel diretamente (sem login)
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadWithdrawals();
+            setupRealtimeListener();
         });
         
         // Configurar listener em tempo real
@@ -706,7 +687,7 @@
                 await database.ref('withdrawals/' + withdrawalId).update({
                     status: 'approved',
                     approvedAt: firebase.database.ServerValue.TIMESTAMP,
-                    approvedBy: auth.currentUser.email
+                    approvedBy: 'admin@buscae.com'
                 });
                 
                 // Remover valor pendente do usuário
@@ -741,7 +722,7 @@
                 await database.ref('withdrawals/' + withdrawalId).update({
                     status: 'rejected',
                     rejectedAt: firebase.database.ServerValue.TIMESTAMP,
-                    rejectedBy: auth.currentUser.email,
+                    rejectedBy: 'admin@buscae.com',
                     rejectionReason: reason || 'Não especificado'
                 });
                 
